@@ -1,0 +1,496 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <title>IMDb Movie Recommendations</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="ai_client.js"></script>
+</head>
+<body>
+
+<header class="menu-bar">
+  <div class="logo">
+    <a href="home.html">IMDb<span>Movies</span></a>
+  </div>
+
+  <div class="menu-search">
+    <input type="text" id="searchBox" placeholder="Search Movies..." oninput="handleSearchInput()" onkeypress="handleEnter(event)">
+    <select id="searchFilter" onchange="handleSearchInput()">
+      <option value="all">All</option>
+      <option value="title">Title</option>
+      <option value="year">Year</option>
+      <option value="genres">Genre</option>
+      <option value="directors">Director</option>
+      <option value="writers">Writer</option>
+    </select>
+    <div id="suggestions"></div>
+  </div>
+
+  <nav class="menu-links">
+    <a href="home.html">Home</a>
+    <a href="index.html">Top Movies</a>
+    <a href="category.html">Genre</a>
+  </nav>
+</header>
+
+<div class="container">
+  <h2>Search Results</h2>
+  <div id="results"></div>
+</div>
+
+<div class="container" id="aiRecommendationsSection" style="display:none;">
+  <h2>Recommended Movies</h2>
+  <div id="aiRecommendations" class="ai-row"></div>
+</div>
+
+<div id="movieModal" class="modal" onclick="closeModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <span class="modal-close" onclick="closeModal()">&times;</span>
+    <div class="poster-wrapper">
+      <img id="modalPoster" src="posters/placeholder.svg" alt="Movie Poster" class="poster" onerror="this.onerror=null;this.src='posters/placeholder.svg';"/>
+    </div>
+    <div class="modal-details">
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-year" id="modalYear"></div>
+      <div class="modal-genres" id="modalGenres"></div>
+      <div class="modal-rating" id="modalRating"></div>
+      <div class="modal-info" id="modalRuntime"></div>
+      <div class="modal-votes" id="modalVotes"></div>
+      <div class="modal-directors" id="modalDirectors"></div>
+      <div class="modal-writers" id="modalWriters"></div>
+      <a href="#" class="modal-link" id="modalLink" target="_blank">View on IMDb</a>
+    </div>
+    <div id="modalRecommendations" class="ai-row"></div>
+  </div>
+</div>
+
+<script>
+let movies = [];
+const aiRecCache = new Map();
+
+function getQueryMovie() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("movie") || "";
+}
+
+function getQueryFilter() {
+  const params = new URLSearchParams(window.location.search);
+  const f = (params.get("field") || "all").toLowerCase();
+  const allowed = new Set(["all", "title", "year", "genres", "directors", "writers"]);
+  return allowed.has(f) ? f : "all";
+}
+
+function getSelectedFilter() {
+  return (document.getElementById("searchFilter")?.value || "all").toLowerCase();
+}
+
+function normalizeData(data) {
+  return Array.isArray(data) ? data : (data.movies || []);
+}
+
+function getPosterPath(movie) {
+  const fallback = "posters/placeholder.svg";
+  const raw = movie.poster || "";
+  if (!raw) return fallback;
+
+  const normalized = raw
+    .replace(/_(19|20)\d{2}(?=\.[^.]+$)/, "")
+    .replace(/_(?=\.[^.]+$)/, "");
+
+  return `posters/${normalized}`;
+}
+
+async function fetchAIRecommendationTitles(title, k = 10) {
+  const key = (title || "").toLowerCase();
+  if (!key) return [];
+  if (aiRecCache.has(key)) return aiRecCache.get(key);
+
+  try {
+    const res = await fetch(`/api/recommendations?title=${encodeURIComponent(title)}&k=${k}`);
+    if (!res.ok) throw new Error("AI endpoint unavailable");
+    const data = await res.json();
+    const titles = (data.recommendations || []).map(r => r.title).filter(Boolean);
+    aiRecCache.set(key, titles);
+    return titles;
+  } catch {
+    return [];
+  }
+}
+
+function enhanceHorizontalScrollers(selector) {
+  document.querySelectorAll(selector).forEach(track => {
+    if (track.dataset.scrollEnhanced === "1") return;
+
+    const shell = document.createElement("div");
+    shell.className = "scroll-shell";
+    track.parentNode.insertBefore(shell, track);
+    shell.appendChild(track);
+
+    const left = document.createElement("button");
+    left.className = "scroll-arrow scroll-arrow-left is-hidden";
+    left.type = "button";
+    left.textContent = "◀";
+
+    const right = document.createElement("button");
+    right.className = "scroll-arrow scroll-arrow-right is-hidden";
+    right.type = "button";
+    right.textContent = "▶";
+
+    shell.appendChild(left);
+    shell.appendChild(right);
+
+    const update = () => {
+      const canScroll = track.scrollWidth > track.clientWidth + 4;
+      const atStart = track.scrollLeft <= 2;
+      const atEnd = track.scrollLeft >= track.scrollWidth - track.clientWidth - 2;
+      left.classList.toggle("is-hidden", !canScroll || atStart);
+      right.classList.toggle("is-hidden", !canScroll || atEnd);
+    };
+
+    left.addEventListener("click", () => {
+      track.scrollBy({ left: -Math.max(180, Math.floor(track.clientWidth * 0.75)), behavior: "smooth" });
+    });
+    right.addEventListener("click", () => {
+      track.scrollBy({ left: Math.max(180, Math.floor(track.clientWidth * 0.75)), behavior: "smooth" });
+    });
+
+    track.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    track.dataset.scrollEnhanced = "1";
+    requestAnimationFrame(update);
+  });
+}
+
+async function loadData() {
+  try {
+    const res = await fetch("movies.json");
+    const data = await res.json();
+    movies = normalizeData(data);
+    const q = getQueryMovie();
+    document.getElementById("searchFilter").value = getQueryFilter();
+    document.getElementById("searchBox").value = q;
+    await showResults(q);
+  } catch (e) {
+    console.error("Error loading data:", e);
+    document.getElementById("results").innerHTML = '<p style="color:red;">Failed to load movies</p>';
+  }
+}
+
+function updateQueryInUrl(query) {
+  const url = new URL(window.location.href);
+  const field = getSelectedFilter();
+  if (query) {
+    url.searchParams.set("movie", query);
+  } else {
+    url.searchParams.delete("movie");
+  }
+  if (field && field !== "all") {
+    url.searchParams.set("field", field);
+  } else {
+    url.searchParams.delete("field");
+  }
+  window.history.replaceState({}, "", url.toString());
+}
+
+function titleMatchesQuery(title, query) {
+  const q = (query || "").toLowerCase().trim();
+  const t = (title || "").toLowerCase();
+  if (!q) return false;
+
+  if (q.length < 3) {
+    if (t.startsWith(q)) return true;
+    return t.split(/[^a-z0-9]+/).some(word => word.startsWith(q));
+  }
+
+  return t.includes(q);
+}
+
+function getRatingClass(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "rating-mid";
+  if (n >= 8) return "rating-high";
+  if (n >= 6.5) return "rating-mid";
+  return "rating-low";
+}
+
+function formatRuntime(minutes) {
+  const n = Number(minutes);
+  if (!Number.isFinite(n) || n <= 0) return "N/A";
+  const h = Math.floor(n / 60);
+  const m = Math.round(n % 60);
+  if (h <= 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
+
+function getMovieFieldText(movie, field) {
+  switch (field) {
+    case "title": return (movie.title || "").toLowerCase();
+    case "year": return String(movie.year || "");
+    case "genres": return (movie.genres || "").toLowerCase();
+    case "directors": return (movie.directors || "").toLowerCase();
+    case "writers": return (movie.writers || "").toLowerCase();
+    default:
+      return [
+        movie.title || "",
+        String(movie.year || ""),
+        movie.genres || "",
+        movie.directors || "",
+        movie.writers || "",
+      ].join(" ").toLowerCase();
+  }
+}
+
+function matchesByField(movie, query, field) {
+  const q = (query || "").toLowerCase().trim();
+  if (!q) return false;
+  const hay = getMovieFieldText(movie, field);
+  if (!hay) return false;
+  if (field === "year") return hay.startsWith(q);
+  if (q.length < 3) {
+    return hay.startsWith(q) || hay.split(/[^a-z0-9]+/).some(word => word.startsWith(q));
+  }
+  return hay.includes(q);
+}
+
+let searchRequestToken = 0;
+
+async function showResults(query) {
+  const token = ++searchRequestToken;
+  const resultsDiv = document.getElementById("results");
+  const aiSection = document.getElementById("aiRecommendationsSection");
+  const aiDiv = document.getElementById("aiRecommendations");
+
+  resultsDiv.innerHTML = "";
+  aiDiv.innerHTML = "";
+  aiSection.style.display = "none";
+
+  query = (query || "").toLowerCase().trim();
+  if (!query) {
+    resultsDiv.innerHTML = "<p>No results found.</p>";
+    renderRecommendations(getFallbackRecommendations(), aiSection, aiDiv);
+    return;
+  }
+
+  const field = getSelectedFilter();
+  const strictMatches = movies.filter(m => matchesByField(m, query, field));
+  const looseMatches = movies.filter(m => getMovieFieldText(m, field).includes(query));
+  let matches = strictMatches.length ? strictMatches : looseMatches;
+  let usedAIRanking = false;
+  if (window.AIClient && (field === "all" || field === "title")) {
+    const aiRanked = await window.AIClient.getAISearchResults(movies, query, 120);
+    if (token !== searchRequestToken) return;
+    if (aiRanked.length) {
+      matches = aiRanked;
+      usedAIRanking = true;
+    }
+  }
+
+  if (!matches.length) {
+    resultsDiv.innerHTML = "<p>No results found.</p>";
+    renderRecommendations(getFallbackRecommendations(), aiSection, aiDiv);
+    return;
+  }
+
+  if (!usedAIRanking) {
+    matches.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  }
+
+  resultsDiv.innerHTML = matches.map(m => {
+    const idx = movies.findIndex(movie => movie.title === m.title);
+    return renderMovieCard(m, idx);
+  }).join("");
+
+  const aiRecs = [];
+  matches.forEach(m => {
+    (m.recommendations || []).forEach(title => {
+      const recMovie = movies.find(movie => movie.title === title);
+      if (recMovie && !aiRecs.some(x => x.title === recMovie.title)) {
+        aiRecs.push(recMovie);
+      }
+    });
+  });
+
+  if (aiRecs.length > 0) {
+    renderRecommendations(aiRecs, aiSection, aiDiv);
+  } else {
+    renderRecommendations(getFallbackRecommendations(matches), aiSection, aiDiv);
+  }
+}
+
+function renderRecommendations(list, sectionEl, containerEl) {
+  if (!list.length) {
+    sectionEl.style.display = "none";
+    containerEl.innerHTML = "";
+    return;
+  }
+  sectionEl.style.display = "block";
+  containerEl.innerHTML = list.map(m => {
+    const idx = movies.findIndex(movie => movie.title === m.title);
+    return renderMovieCard(m, idx);
+  }).join("");
+  enhanceHorizontalScrollers("#aiRecommendations");
+}
+
+function getFallbackRecommendations(excludeList = []) {
+  const exclude = new Set(excludeList.map(m => m.title));
+  const list = [...movies]
+    .filter(m => !exclude.has(m.title))
+    .sort((a, b) => (b.rating || 0) - (a.rating || 0));
+
+  if (window.AIClient) {
+    const profile = window.AIClient.getProfile ? window.AIClient.getProfile() : { views: {}, genres: {}, directors: {}, searches: {}, recent: [] };
+    list.sort((a, b) => {
+      const scoreA = (a.rating || 0) + window.AIClient.personalizedBoost(a, profile);
+      const scoreB = (b.rating || 0) + window.AIClient.personalizedBoost(b, profile);
+      return scoreB - scoreA;
+    });
+  }
+
+  return list.slice(0, 10);
+}
+
+function renderMovieCard(movie, idx) {
+  const poster = getPosterPath(movie);
+  return `
+    <div class="movie-card" onclick="showMovieDetails(${idx})">
+      <div class="poster-wrapper">
+        <img src="${poster}" alt="${movie.title}" class="poster" onerror="this.onerror=null;this.src='posters/placeholder.svg';"/>
+        <div class="runtime-badge">${formatRuntime(movie.runtimeMinutes)}</div>
+      </div>
+      <div class="rank-info">
+        <div class="rank-title">${movie.title} <span class="rank-year">${movie.year || "N/A"}</span></div>
+        <div class="rating ${getRatingClass(movie.rating)}">Rating: ${movie.rating || "N/A"}</div>
+        <div class="votes">Votes: ${movie.numVotes || "N/A"}</div>
+        <div class="genres">${movie.genres || ""}</div>
+        <div class="directors">Director: ${movie.directors || "N/A"}</div>
+        <div class="writers">Writer: ${movie.writers || "N/A"}</div>
+      </div>
+    </div>`;
+}
+
+function showMovieDetailsByTitle(title) {
+  const idx = movies.findIndex(m => m.title === title);
+  if (idx >= 0) showMovieDetails(idx);
+}
+
+async function showMovieDetails(idx) {
+  const m = movies[idx];
+  if (!m) return;
+
+  document.getElementById("modalPoster").src = getPosterPath(m);
+  document.getElementById("modalTitle").textContent = m.title || "N/A";
+  document.getElementById("modalYear").textContent = `Year: ${m.year || "N/A"}`;
+  document.getElementById("modalGenres").textContent = `Genres: ${m.genres || "N/A"}`;
+  const modalRating = document.getElementById("modalRating");
+  modalRating.className = `modal-rating ${getRatingClass(m.rating)}`;
+  modalRating.textContent = `Rating: ${m.rating || "N/A"}`;
+  document.getElementById("modalRuntime").textContent = `Runtime: ${formatRuntime(m.runtimeMinutes)}`;
+  document.getElementById("modalVotes").textContent = `Votes: ${m.numVotes || "N/A"}`;
+  document.getElementById("modalDirectors").textContent = `Director: ${m.directors || "N/A"}`;
+  document.getElementById("modalWriters").textContent = `Writer: ${m.writers || "N/A"}`;
+  document.getElementById("modalLink").href = `https://www.imdb.com/find/?q=${encodeURIComponent(m.title || "")}`;
+  if (window.AIClient) window.AIClient.recordMovieView(m);
+
+  const recDiv = document.getElementById("modalRecommendations");
+  recDiv.innerHTML = "";
+  const aiTitles = await fetchAIRecommendationTitles(m.title, 10);
+  const recTitles = aiTitles.length ? aiTitles : (m.recommendations || []);
+  recTitles.forEach(title => {
+    const recIdx = movies.findIndex(movie => movie.title === title);
+    if (recIdx >= 0) {
+      const recMovie = movies[recIdx];
+      const recPoster = getPosterPath(recMovie);
+      recDiv.innerHTML += `
+        <div class="recommendation-card" onclick="showMovieDetails(${recIdx})">
+          <img src="${recPoster}" alt="${recMovie.title}" class="recommendation-poster" onerror="this.onerror=null;this.src='posters/placeholder.svg';">
+          <div class="recommendation-title">${recMovie.title}</div>
+        </div>`;
+    }
+  });
+
+  enhanceHorizontalScrollers("#modalRecommendations");
+  document.getElementById("movieModal").classList.add("show");
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById("movieModal")) return;
+  document.getElementById("movieModal").classList.remove("show");
+}
+
+async function showSuggestions() {
+  const input = document.getElementById("searchBox").value.toLowerCase().trim();
+  const field = getSelectedFilter();
+  const suggestionsDiv = document.getElementById("suggestions");
+
+  if (!input || movies.length === 0) {
+    suggestionsDiv.style.display = "none";
+    return;
+  }
+
+  const matches = (window.AIClient && (field === "all" || field === "title"))
+    ? await window.AIClient.getAISuggestions(movies, input, 10)
+    : movies
+      .map(m => {
+        const text = getMovieFieldText(m, field);
+        let score = 0;
+        if (text.startsWith(input)) score = 1200;
+        else if (text.split(/[^a-z0-9]+/).some(word => word.startsWith(input))) score = 900;
+        else if (input.length >= 3 && text.includes(input)) score = 500;
+        return { movie: m, score };
+      })
+      .filter(x => x.score > 0)
+      .sort((a, b) => b.score - a.score || (b.movie.rating || 0) - (a.movie.rating || 0))
+      .slice(0, 10)
+      .map(x => x.movie);
+
+  suggestionsDiv.innerHTML = matches
+    .map(m => `<div class="suggestion-item" onclick="selectSuggestion('${(m.title || "").replace(/'/g, "\\'")}')">${m.title} (${m.year || "N/A"})</div>`)
+    .join("");
+
+  suggestionsDiv.style.display = "block";
+}
+
+async function handleSearchInput() {
+  const query = document.getElementById("searchBox").value.trim();
+  await showSuggestions();
+  await showResults(query);
+  updateQueryInUrl(query);
+}
+
+function selectSuggestion(title) {
+  document.getElementById("searchFilter").value = "title";
+  document.getElementById("searchBox").value = title;
+  hideSuggestions();
+  showResults(title);
+  if (window.AIClient) window.AIClient.recordSearch(title);
+  updateQueryInUrl(title);
+}
+
+function hideSuggestions() {
+  document.getElementById("suggestions").style.display = "none";
+}
+
+function handleEnter(e) {
+  if (e.key === "Enter") {
+    const query = document.getElementById("searchBox").value.trim();
+    hideSuggestions();
+    if (!query) {
+      window.location.href = "home.html";
+      return;
+    }
+    if (window.AIClient) window.AIClient.recordSearch(query);
+    showResults(query);
+    updateQueryInUrl(query);
+  }
+}
+
+document.addEventListener("click", e => {
+  const sb = document.getElementById("searchBox");
+  if (e.target !== sb && !sb.contains(e.target)) hideSuggestions();
+});
+
+loadData();
+</script>
+</body>
+</html>
+

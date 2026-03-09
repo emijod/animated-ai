@@ -1,0 +1,1336 @@
+/* GENERAL PAGE */
+
+body{
+    margin-top:70px;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background: radial-gradient(1200px 700px at 10% -10%, #1b0936 0%, #0d001a 45%, #090012 100%);
+    color:white;
+    overflow-x:hidden;
+    line-height: 1.5;
+    letter-spacing: 0.1px;
+}
+
+*::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+    display: none;
+}
+
+* {
+    -ms-overflow-style: none;  /* IE/Edge */
+    scrollbar-width: none;     /* Firefox */
+}
+
+.scroll-shell {
+    position: relative;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+}
+
+.scroll-shell .scroll-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 8px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(122, 44, 255, 0.98);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 0;
+    cursor: pointer;
+    z-index: 5;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55), 0 10px 28px rgba(0, 0, 0, 0.55);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.scroll-shell .scroll-arrow:hover {
+    transform: translateY(-50%) scale(1.06);
+    background: #8f46ff;
+}
+
+.scroll-shell .scroll-arrow-left {
+    left: -52px;
+}
+
+.scroll-shell .scroll-arrow-right {
+    right: -52px;
+}
+
+/* Home genre rows: keep arrows outside the movie cards */
+.genre-section .scroll-shell .scroll-arrow-left {
+    left: -60px;
+}
+
+.genre-section .scroll-shell .scroll-arrow-right {
+    right: -60px;
+}
+
+.scroll-shell .scroll-arrow.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+
+/* CENTER CONTENT */
+
+.container{
+    text-align:left;
+    width:100%;
+    max-width:1160px;
+    margin:auto;
+    padding: 0 10px;
+}
+
+
+/* TITLE */
+
+h2 {
+    color:#7a2cff;
+    font-size:30px;
+    font-weight: 700;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    margin-bottom:24px;
+    margin-left: 0;
+    text-align: center;
+    margin-top: 6px;
+}
+
+h1{
+    color:#7a2cff;
+    font-size:34px;
+    font-weight: 800;
+    text-transform:uppercase;
+    letter-spacing:1.4px;
+    margin-bottom:18px;
+    margin-left: 0;
+    margin-top: 90px;
+    text-align: center;
+}
+
+h3{
+    color:#7a2cff;
+    font-size:30px;
+    font-weight: 700;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    margin-bottom:24px;
+    margin-left: 0;
+    margin-top: 20px;
+    text-align: center;
+}
+
+/* Inside movie cards */
+.title, .genres, .directors, .writers, .runtime, .votes {
+    font-size: 12px;
+    color: #bbb;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Add "..." when text is too long */
+    white-space: nowrap;     /* Keep text in one line */
+}
+
+.poster-wrapper {
+    position: relative;
+    width: 150px;
+    height: 210px;
+    margin: 0 auto 6px auto;
+}
+
+.poster-wrapper img.poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+/* Runtime badge at bottom-right */
+.runtime-badge {
+    position: absolute;
+    top: auto;
+    right: 2px;
+    bottom: 6px;
+    transform: none;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    background: rgba(0, 0, 0, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    padding: 4px 7px;
+    border-radius: 999px;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+    z-index: 3;
+    pointer-events: none;
+}
+
+.poster-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;     /* scales and crops image to fill container */
+    object-position: center; /* centers image within container */
+    display: block;
+}
+
+.poster-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+/* Optional: make the searched movie slightly bigger font */
+.searched-movie .title {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.search-container {
+    position: relative;
+    z-index: 1000; /* make sure suggestions are on top of blobs/carousel */
+}
+#suggestions {
+    z-index: 1001; /* higher than everything */
+}
+
+input{
+    width:100%;
+    padding:15px 20px;
+    border-radius:50px;
+    border:none;
+    font-size:16px;
+    background:rgba(255,255,255,0.1);
+    color:white;
+    backdrop-filter:blur(5px);
+}
+
+input:focus{
+    outline:2px solid #7a2cff;
+}
+
+/* SUGGESTIONS */
+
+#suggestions{
+    position:absolute;
+    background:#181818;
+    border:1px solid #333;
+    border-radius:8px;
+    max-height:250px;
+    overflow-y:auto;
+    width:100%;
+    z-index:1000;
+    display:none;
+    margin-top:8px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.6);
+    text-align:left;
+}
+
+.suggestion-item{
+    padding:14px 20px;
+    cursor:pointer;
+    border-bottom:1px solid #2a2a2a;
+}
+
+.suggestion-item:hover{
+    background:rgba(122,44,255,0.2);
+}
+
+/* BLOBS BACKGROUND */
+
+.blobs{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    z-index:-3;
+}
+
+/* Base blob style */
+
+.blob{
+    position:absolute;
+    width:500px;
+    height:500px;
+    border-radius:50%;
+    filter:blur(120px);
+    opacity:0.6;
+    animation: blobMove 15s infinite forwards alternate;
+}
+
+/* Blob colors */
+
+.blob1{
+    background: radial-gradient(circle, #7a2cff, transparent 70%);
+    top:-100px;
+    left:-100px;
+    animation-delay:0s;
+}
+
+.blob2{
+    background: radial-gradient(circle, #a855f7, transparent 70%);
+    top:40%;
+    left:60%;
+    animation-delay:5s;
+}
+
+.blob3{
+    background: radial-gradient(circle, #5b21b6, transparent 70%);
+    top:70%;
+    left:20%;
+    animation-delay:10s;
+}
+
+/* Animation */
+
+@keyframes blobMove{
+
+    0%{
+        transform:translate(0,0) scale(1);
+    }
+
+    25%{
+        transform:translate(150px,-100px) scale(1.2);
+    }
+
+    50%{
+        transform:translate(-120px,80px) scale(0.9);
+    }
+
+    75%{
+        transform:translate(80px,120px) scale(1.15);
+    }
+
+    100%{
+        transform:translate(-100px,-50px) scale(1);
+    }
+
+}
+
+/* SECTION TITLE */
+
+.section-header{
+    font-size:22px;
+    font-weight:700;
+    letter-spacing: 0.4px;
+    color: #7a2cff;
+    margin: 10px 0 12px 0;
+}
+
+.home-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin: 4px auto 22px auto;
+    max-width: 980px;
+    justify-items: center;
+    align-items: stretch;
+}
+
+.home-stat-card {
+    width: 100%;
+    text-align: center;
+    background: linear-gradient(160deg, rgba(37, 17, 74, 0.85), rgba(21, 10, 44, 0.9));
+    border: 1px solid rgba(177, 147, 240, 0.35);
+    border-radius: 14px;
+    padding: 12px 12px;
+    box-sizing: border-box;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.34);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-stat-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(189, 160, 247, 0.85);
+    box-shadow: 0 12px 28px rgba(79, 42, 156, 0.45);
+}
+
+.home-stat-label {
+    font-size: 10px;
+    color: #d8c9f7;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    opacity: 0.95;
+}
+
+.home-stat-value {
+    margin-top: 6px;
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: 0 0 16px rgba(148, 106, 230, 0.5);
+}
+
+.top-carousel-wrapper {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(200px, 1fr));
+    gap: 12px;
+    padding: 8px;
+}
+
+.top-carousel-wrapper .movie-card {
+    position: relative;
+}
+
+.rank-title {
+    display: flex;
+    justify-content: space-between; /* pushes year to far right */
+    align-items: flex-start;
+    font-weight: bold;
+    font-size: 15px;
+    gap: 8px;
+}
+
+
+.rank-number {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2;
+    min-width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    background: rgba(122, 44, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 14px rgba(122, 44, 255, 0.9);
+    margin-bottom: 0;
+    text-align: center;
+}
+
+.rank-info {
+    text-align: left;
+}
+
+.rank-info .rank-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+}
+
+.rank-year{
+    margin-top: 2px;
+    margin-left: auto;
+    white-space: nowrap;
+    color: #bcb3ce;
+}
+
+.rank-info .rank-year,
+.rank-info .runtime,
+.rank-info .votes,
+.rank-info .genres,
+.rank-info .directors,
+.rank-info .writers {
+    font-size: 12.5px;
+    color: #c4bfd0;
+    margin-bottom: 4px;
+}
+
+.rank-info .rating{
+    font-size: 13px;
+    color: #46d369;
+    margin-bottom: 4px;
+}
+
+/* Prevent long genre text from getting clipped at the right edge */
+.rank-info .genres,
+.genres {
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: clip;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-height: 1.25;
+}
+/* Responsive */
+@media(max-width:768px){
+    .top-carousel-wrapper {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+    .top-carousel-wrapper .movie-card {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+    }
+    .poster-wrapper {
+        width: 100px;
+        height: 150px;
+    }
+    .rank-number {
+        min-width: 28px;
+        height: 28px;
+        font-size: 13px;
+    }
+}
+
+/* MOVIE CARDS */
+
+.movie-card {
+    background: linear-gradient(165deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+    backdrop-filter: blur(11px);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    padding: 12px;
+    border-radius: 15px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    text-align: left;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.28);
+    justify-content: flex-start;
+}
+
+/* Title + year on one line */
+.title-year {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.title-year .title {
+    font-weight: bold;
+    font-size: 15px;
+    color: #fff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.title-year .year {
+    font-size: 12px;
+    color: #aaa;
+    margin-left: 5px;
+    margin-top: -10px;
+}
+
+.runtime {
+    color: #46d369;
+    font-weight: bold;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.votes,
+.genres,
+.directors,
+.writers {
+    font-size: 12px;
+    color: #bbb;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 3px;
+}
+
+@media(max-width:768px){
+    .movie-card { width: 150px; }
+}
+
+.movie-card:hover {
+    transform: translateY(-6px) scale(1.01);
+    z-index: 2;
+    border-color: rgba(168, 128, 242, 0.8);
+    box-shadow: 0 14px 38px rgba(122, 44, 255, 0.45);
+}
+
+/* TEXT */
+
+.title{
+    font-weight:700;
+    font-size:16px;
+    margin-bottom:8px;
+}
+
+.genres,.directors,.writers{
+    font-size:12.5px;
+    color:#c4bfd0;
+}
+
+.rating{
+    color:#cfc6e6;
+    font-weight:bold;
+}
+
+.rating.rating-high,
+.modal-rating.rating-high {
+    color: #3ee071;
+}
+
+.rating.rating-mid,
+.modal-rating.rating-mid {
+    color: #f5c451;
+}
+
+.rating.rating-low,
+.modal-rating.rating-low {
+    color: #ff6f6f;
+}
+
+
+/* RESULTS GRID */
+
+#results{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    gap:18px;
+    max-width:1160px;
+    margin:0 auto;
+    padding-bottom:40px;
+}
+
+.title{
+    font-weight:bold;
+    font-size:16px;
+    line-height:1.4;
+}
+
+.genres,
+.directors,
+.writers{
+    font-size:12px;
+    color:#aaa;
+}
+
+.rating{
+    color:#46d369;
+    font-weight:bold;
+}
+
+/* MODAL */
+
+.modal{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background-color:rgba(6, 2, 14, 0.82);
+    z-index:2000;
+    justify-content:center;
+    align-items:center;
+    opacity:0;
+    transition:opacity 0.3s ease;
+    padding: 18px;
+    box-sizing: border-box;
+}
+
+.modal.show{
+    opacity:1;
+    display:flex;
+}
+
+.modal-content{
+    background: linear-gradient(155deg, #1a1230 0%, #12071f 100%);
+    border: 1px solid rgba(165, 131, 232, 0.35);
+    border-radius:16px;
+    padding:20px;
+    max-width:640px;
+    max-height: 85vh;
+    overflow: hidden;
+    width:92%;
+    position:relative;
+    box-shadow:0 20px 64px rgba(78, 37, 182, 0.45);
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 16px;
+}
+
+.modal-close{
+    position:absolute;
+    top:10px;
+    right:12px;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    font-size:20px;
+    color:#cfc6e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor:pointer;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.modal-close:hover{
+    color:#ffffff;
+    background: rgba(122, 44, 255, 0.6);
+}
+
+.modal-title{
+    font-size:26px;
+    font-weight:700;
+    margin-bottom:10px;
+    color: #f4ebff;
+    line-height: 1.25;
+}
+
+.modal-info{
+    font-size:14px;
+    color:#d0c7e2;
+    margin:8px 0;
+}
+
+.modal-rating{
+    color:#85f0a2;
+    font-size:15px;
+    font-weight: 700;
+    margin: 6px 0;
+}
+
+.modal-link{
+    display:inline-block;
+    margin-top:12px;
+    color:#f4df6a;
+    text-decoration:none;
+    font-weight:700;
+    transition: color 0.2s ease;
+}
+
+.modal-link:hover{
+    color:#fff3a3;
+}
+
+.modal-content .poster-wrapper {
+    width: 170px;
+    height: 255px;
+    margin: 0;
+}
+
+.modal-content .poster {
+    border-radius: 12px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255,255,255,0.22);
+}
+
+.modal-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 4px;
+    padding-right: 16px;
+    overflow-y: auto;
+}
+
+.modal-content > .scroll-shell {
+    grid-column: 1 / -1;
+    margin-top: 6px;
+    width: 100%;
+}
+
+.modal-content .scroll-arrow {
+    width: 30px;
+    height: 30px;
+    font-size: 11px;
+}
+
+.modal-content .scroll-shell .scroll-arrow-left {
+    left: 2px;
+}
+
+.modal-content .scroll-shell .scroll-arrow-right {
+    right: 2px;
+}
+
+/* Pull horizontal card rows slightly left so cards sit away from arrows */
+.genre-section .scroll-shell,
+#homeTop10.scroll-shell,
+#homeRecommendations.scroll-shell,
+#aiRecommendations.scroll-shell {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 760px) {
+    .modal-content {
+        grid-template-columns: 1fr;
+        justify-items: center;
+    }
+
+    .modal-details {
+        width: 100%;
+    }
+
+    .modal-content .poster-wrapper {
+        width: 150px;
+        height: 225px;
+    }
+}
+
+/* Make searched movie bigger */
+.searched-movie {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 15px;
+    width: 180px;
+    border-radius: 15px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    justify-content: flex-start;
+    justify-content: space-between;
+    transition: transform 0.3s, box-shadow 0.3s;
+    flex-shrink: 0; /* ⚡ prevents cards from shrinking in flex */
+    border: 2px solid #7a2cff; /* violet border highlight */
+    box-shadow: 0 8px 40px rgba(122,44,255,0.7); /* glow effect */
+    z-index: 10; /* on top of other cards */
+    transition: transform 0.3s, box-shadow 0.3s, border 0.3s;
+}
+
+/* Hover effect for searched movie */
+.searched-movie:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 50px rgba(122,44,255,0.9);
+    border-color: #7a2cff; /* optional: change border on hover */
+}
+
+.menu-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: rgba(7, 2, 16, 0.62);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    box-sizing: border-box;
+    z-index: 5000;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+/* Logo */
+.menu-bar .logo a {
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    text-decoration: none;
+    z-index: 5100;
+}
+
+.menu-bar .logo a span {
+    color: #9f7fd6;
+    text-shadow: 0 0 10px rgba(122,44,255,0.7);
+}
+
+/* Center search bar */
+.menu-bar .menu-search {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(560px, calc(100% - 380px));
+    max-width: 560px;
+    min-width: 320px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    z-index: 5101;
+}
+
+.menu-bar .menu-search select {
+    width: 108px;
+    padding: 8px 28px 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    background: rgb(34, 11, 72, 0.99);
+    color: #ffffff;
+    backdrop-filter: blur(5px);
+    position: static;
+    z-index: 2;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    background-image:
+      linear-gradient(rgb(34, 11, 72, 0.99), rgb(34, 11, 72, 0.99)),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 20 20'><path fill='%23f1e8ff' d='M5.8 7.5L10 11.7l4.2-4.2 1.3 1.3-5.5 5.5-5.5-5.5z'/></svg>");
+    background-repeat: no-repeat, no-repeat;
+    background-position: 0 0, right 10px center;
+    background-size: auto, 10px;
+}
+
+.menu-bar .menu-search select:hover {
+    border-color: rgba(122,44,255,0.65);
+    background-color: rgba(44, 15, 90, 0.98);
+    box-shadow: 0 10px 26px rgba(0,0,0,0.58);
+}
+
+.menu-bar .menu-search select option {
+    color: #f7f2ff;
+    background: #1b1231;
+}
+
+.menu-bar .menu-search select:focus {
+    outline: none;
+    border-color: rgba(122,44,255,0.7);
+    box-shadow: 0 0 0 2px rgba(122,44,255,0.45), 0 10px 28px rgba(0,0,0,0.58);
+}
+
+.menu-bar .menu-search input {
+    width: calc(100% - 116px);
+    max-width: 100%;
+    padding: 8px 15px;
+    border-radius: 50px;
+    border: none;
+    font-size: 14px;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    backdrop-filter: blur(5px);
+    transition: outline 0.2s;
+}
+
+.menu-bar .menu-search input:focus {
+    outline: 2px solid #7a2cff;
+}
+
+/* Suggestions dropdown */
+#suggestions {
+    position: absolute;
+    top: 110%; /* just below search bar */
+    width: calc(100% - 116px);
+    padding: 8px 15px;
+    border: none;
+    font-size: 14px;
+    background: rgb(34, 11, 72,0.99);
+    color: white;
+    transition: outline 0.2s;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+}
+
+.suggestion-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.suggestion-item:hover {
+    background: rgba(122,44,255,0.2);
+}
+
+.menu-bar .menu-links {
+    display: flex;
+    gap: 4px;
+    flex: 0 0 auto;
+    margin-left: auto;
+    
+}
+
+.menu-links a {
+    color: #b196e1;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.2px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: all 0.22s ease;
+}
+
+.menu-links a:hover {
+    color: #fff;
+    background: rgba(122,44,255,0.24);
+    box-shadow: 0 0 14px rgba(122,44,255,0.55);
+}
+
+.category-title{
+    color:#7a2cff;
+    font-size:30px;
+    font-weight: 700;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    margin-bottom:24px;
+    margin-left: 0;
+    text-align: center;
+}
+
+.rank-number.top-rank {
+    transform: scale(1.12);
+    border-width: 2px;
+}
+
+.rank-number.top-rank-1 {
+    background: linear-gradient(145deg, #ffd86b, #ffb100);
+    color: #2a1700;
+    box-shadow: 0 0 18px rgba(255, 195, 60, 0.95);
+}
+
+.rank-number.top-rank-2 {
+    background: linear-gradient(145deg, #e9eef9, #aeb8cf);
+    color: #1e2230;
+    box-shadow: 0 0 16px rgba(197, 209, 234, 0.9);
+}
+
+.rank-number.top-rank-3 {
+    background: linear-gradient(145deg, #f3b07c, #c9783c);
+    color: #281407;
+    box-shadow: 0 0 16px rgba(227, 144, 85, 0.9);
+}
+
+/* Smaller category cards */
+.category-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    max-width: 1000px;
+    margin: 0 auto 6px auto;
+    padding: 14px 6px;
+    box-sizing: border-box;
+}
+
+.category-title {
+    color: #7a2cff;
+    font-size: 36px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-align: center;
+    width: 100%;
+    position: static;
+}
+
+.category-card{
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 15px 10px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.selected-genre-text {
+    color: #7a2cff;
+    font-size: 22px;
+    letter-spacing: 0.4px;
+    text-align: left;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    font-weight: 700;
+}
+
+.category-card.selected {
+    background: rgba(122, 44, 255, 0.4);
+    box-shadow: 0 0 10px #7a2cff, 0 0 5px #7a2cff, 0 0 10px #7a2cff;
+    transform: scale(1.05);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.category-card:hover{
+    transform: scale(1.05);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+    background: rgba(122, 44, 255, 0.2);
+}
+
+/* Movies grid under category */
+.results-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+    padding: 8px 12px 14px 12px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+}
+
+.genre-section {
+    margin-bottom: 40px;
+}
+
+.genre-section h2 {
+    color: #7a2cff;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-left: 10px;
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+.genre-row {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    padding: 10px;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+    justify-content: center;
+}
+
+/* Home rows: keep cards anchored from the left for stable horizontal layout */
+#homeTop10,
+#homeRecommendations,
+#homePreviouslyViewed,
+#genre-sections .genre-row,
+#aiRecommendations {
+    justify-content: flex-start;
+}
+
+#homeTop10,
+#homeRecommendations,
+#homePreviouslyViewed,
+#aiRecommendations {
+    padding-left: 30px;
+    padding-right: 30px;
+    box-sizing: border-box;
+    scroll-padding-left: 30px;
+}
+
+/* Keep Previously Viewed aligned with other home rows */
+#homePreviouslyViewed {
+    padding-left: 30px;
+    scroll-padding-left: 30px;
+}
+
+.genre-row::-webkit-scrollbar {
+    height: 6px;
+}
+
+
+.genre-row .movie-card {
+    min-width: 200px;
+    max-width: 200px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+/* Generic recommendations row (used in results + modal) */
+.ai-recommendations {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  padding: 10px 10px 20px 10px;
+  scroll-behavior: smooth;
+  justify-content: center;
+}
+
+.ai-recommendations::-webkit-scrollbar {
+  height: 6px;
+}
+
+.ai-recommendations::-webkit-scrollbar-thumb {
+  background-color: #7a2cff;
+  border-radius: 3px;
+}
+
+.ai-recommendations::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.05);
+}
+
+/* Horizontal scroll row like movie-cards */
+.ai-row {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  padding: 10px 10px 20px 10px;
+  scroll-behavior: smooth;
+  justify-content: center;
+}
+
+.ai-row .movie-card,
+.ai-recommendations .movie-card {
+  min-width: 200px;
+  max-width: 200px;
+  flex-shrink: 0;
+}
+
+.ai-row::-webkit-scrollbar {
+  height: 6px;
+}
+
+.ai-row::-webkit-scrollbar-thumb {
+  background-color: #7a2cff;
+  border-radius: 3px;
+}
+
+.ai-row::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.05);
+}
+
+/* Individual AI recommendation cards */
+.ai-recommendations .recommendation-card,
+.ai-row .recommendation-card {
+  min-width: 140px;
+  max-width: 140px;
+  background: rgba(26, 13, 58, 0.8); /* dark violet */
+  color: #fff;
+  border-radius: 12px;
+  padding: 10px;
+  font-size: 13px;
+  text-align: center;
+  line-height: 1.35;
+  white-space: normal;
+  word-break: break-word;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.ai-recommendations .recommendation-card:hover,
+.ai-row .recommendation-card:hover {
+  background-color: #7a2cff;
+  transform: translateY(-4px);
+}
+
+#modalRecommendations {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+  justify-content: flex-start;
+  padding-left: 16px;
+  padding-right: 16px;
+  min-height: 226px;
+}
+
+#modalRecommendations .recommendation-card {
+  min-width: 132px;
+  max-width: 132px;
+  padding: 8px;
+  background: rgba(30, 16, 56, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  font-size: 12px;
+}
+
+#modalRecommendations .recommendation-poster {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+#modalRecommendations .recommendation-title {
+  font-size: 11px;
+  color: #f2ecff;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: normal;
+  word-break: break-word;
+}
+
+@media (max-width: 900px) {
+    .menu-bar {
+        height: auto;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 10px 12px;
+    }
+
+    .menu-bar .menu-search {
+        order: 3;
+        flex: 1 1 100%;
+        max-width: 100%;
+        margin-left: 0;
+        position: relative;
+        left: auto;
+        transform: none;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .menu-bar .menu-search input {
+        width: calc(100% - 96px);
+    }
+
+    .menu-bar .menu-search select {
+        width: 88px;
+        font-size: 12px;
+        padding: 6px 6px;
+    }
+
+    body {
+        margin-top: 110px;
+    }
+
+    .home-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .modal {
+        padding: 10px;
+    }
+
+    .modal-content {
+        width: 96%;
+        max-height: 90vh;
+        padding: 14px;
+        gap: 12px;
+    }
+
+    .modal-title {
+        font-size: 21px;
+        margin-top: 2px;
+    }
+
+    .modal-details {
+        gap: 2px;
+        padding-right: 4px;
+    }
+
+    #modalRecommendations {
+        min-height: 205px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    #modalRecommendations .recommendation-card {
+        min-width: 120px;
+        max-width: 120px;
+    }
+
+    #modalRecommendations .recommendation-poster {
+        height: 152px;
+    }
+}
+
+/* Final override: keep genre text readable and not cut off */
+.movie-card .genres,
+.rank-info .genres {
+    white-space: normal !important;
+    overflow: hidden;
+    text-overflow: clip !important;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}

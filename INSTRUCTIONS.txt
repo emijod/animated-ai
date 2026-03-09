@@ -1,0 +1,42 @@
+IMDb Movie App - Quick Instructions 
+
+1) Open VsCode then open the terminal
+
+2) Copy Paste then run in the terminal || Install Python packages: (ONE TIME ONLY can skip this step after downloading)
+   pip install -r requirements.txt
+
+3) Copy Paste then run in the terminal after number 2 || Run the AI web server:
+   python ai_server.py
+
+4) Open the app in browser:
+   http://127.0.0.1:8000/home.html
+
+5) Stop the server:
+   Press Ctrl + C in the terminal
+
+Notes:
+- Do not open HTML files directly if you want AI features.
+- AI search/recommendations need the server running.
+- User history is saved in browser localStorage.
+
+Features:
+1. Every viewed movie will show at home in the previously viewed.
+2. AI will learn your tastes and likes depending on what you searched. (viewed movies, searches, genres/directors)
+3. Recommendation will depend on what you searched.
+4. Search bar will learn from your wordings
+5. The most searched movie will frequently show in the search suggestion/ will show first.
+6. Movie search with live autocomplete suggestions.
+7. Colored rating
+
+
+Removing history
+Ctrl+Shift+I or Inspect element
+Go to Console
+Type localStorage.removeItem("imdb_ai_profile_v1") and Enter
+Done
+
+Checking history
+Ctrl+Shift+I or Inspect element
+Go to Console
+Type localStorage.getItem("imdb_ai_profile_v1") and Enter
+Done
