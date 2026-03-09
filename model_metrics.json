@@ -4,7 +4,10 @@
   "avg_neighbor_similarity_at_k": 0.5556493404348007,
   "avg_genre_jaccard_at_k": 0.6262037037037037,
   "catalog_coverage_at_k": 0.9320987654320988,
-  "search_score": 0.6332830631650664,
+  "precision_at_k": 0.8969135802469135,
+  "recall_at_k": 0.030495422973350735,
+  "f1_score_at_k": 0.058985321266448405,
+  "search_score": 0.4087395479209702,
   "best_config": {
     "ngram_range": [
       1,
