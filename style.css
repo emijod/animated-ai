@@ -17,8 +17,8 @@ body{
 }
 
 * {
-    -ms-overflow-style: none;  /* IE/Edge */
-    scrollbar-width: none;     /* Firefox */
+    -ms-overflow-style: none;  
+    scrollbar-width: none;     
 }
 
 .scroll-shell {
@@ -65,7 +65,6 @@ body{
     right: -52px;
 }
 
-/* Home genre rows: keep arrows outside the movie cards */
 .genre-section .scroll-shell .scroll-arrow-left {
     left: -60px;
 }
@@ -134,8 +133,8 @@ h3{
     font-size: 12px;
     color: #bbb;
     overflow: hidden;
-    text-overflow: ellipsis; /* Add "..." when text is too long */
-    white-space: nowrap;     /* Keep text in one line */
+    text-overflow: ellipsis; 
+    white-space: nowrap;    
 }
 
 .poster-wrapper {
@@ -152,7 +151,6 @@ h3{
     border-radius: 5px;
 }
 
-/* Runtime badge at bottom-right */
 .runtime-badge {
     position: absolute;
     top: auto;
@@ -176,8 +174,8 @@ h3{
 .poster-wrapper img {
     width: 100%;
     height: 100%;
-    object-fit: cover;     /* scales and crops image to fill container */
-    object-position: center; /* centers image within container */
+    object-fit: cover;    
+    object-position: center;
     display: block;
 }
 
@@ -187,7 +185,6 @@ h3{
     gap: 10px;
 }
 
-/* Optional: make the searched movie slightly bigger font */
 .searched-movie .title {
     font-size: 15px;
     font-weight: bold;
@@ -195,10 +192,10 @@ h3{
 
 .search-container {
     position: relative;
-    z-index: 1000; /* make sure suggestions are on top of blobs/carousel */
+    z-index: 1000; 
 }
 #suggestions {
-    z-index: 1001; /* higher than everything */
+    z-index: 1001;
 }
 
 input{
@@ -383,7 +380,7 @@ input:focus{
 
 .rank-title {
     display: flex;
-    justify-content: space-between; /* pushes year to far right */
+    justify-content: space-between; 
     align-items: flex-start;
     font-weight: bold;
     font-size: 15px;
@@ -447,7 +444,6 @@ input:focus{
     margin-bottom: 4px;
 }
 
-/* Prevent long genre text from getting clipped at the right edge */
 .rank-info .genres,
 .genres {
     white-space: normal;
@@ -752,7 +748,6 @@ input:focus{
     right: 2px;
 }
 
-/* Pull horizontal card rows slightly left so cards sit away from arrows */
 .genre-section .scroll-shell,
 #homeTop10.scroll-shell,
 #homeRecommendations.scroll-shell,
@@ -777,7 +772,6 @@ input:focus{
     }
 }
 
-/* Make searched movie bigger */
 .searched-movie {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
@@ -791,10 +785,10 @@ input:focus{
     justify-content: flex-start;
     justify-content: space-between;
     transition: transform 0.3s, box-shadow 0.3s;
-    flex-shrink: 0; /* ⚡ prevents cards from shrinking in flex */
-    border: 2px solid #7a2cff; /* violet border highlight */
-    box-shadow: 0 8px 40px rgba(122,44,255,0.7); /* glow effect */
-    z-index: 10; /* on top of other cards */
+    flex-shrink: 0; 
+    border: 2px solid #7a2cff; 
+    box-shadow: 0 8px 40px rgba(122,44,255,0.7); 
+    z-index: 10; 
     transition: transform 0.3s, box-shadow 0.3s, border 0.3s;
 }
 
@@ -802,7 +796,7 @@ input:focus{
 .searched-movie:hover {
     transform: translateY(-6px);
     box-shadow: 0 12px 50px rgba(122,44,255,0.9);
-    border-color: #7a2cff; /* optional: change border on hover */
+    border-color: #7a2cff;
 }
 
 .menu-bar {
@@ -913,10 +907,9 @@ input:focus{
     outline: 2px solid #7a2cff;
 }
 
-/* Suggestions dropdown */
 #suggestions {
     position: absolute;
-    top: 110%; /* just below search bar */
+    top: 110%; 
     width: calc(100% - 116px);
     padding: 8px 15px;
     border: none;
@@ -999,7 +992,6 @@ input:focus{
     box-shadow: 0 0 16px rgba(227, 144, 85, 0.9);
 }
 
-/* Smaller category cards */
 .category-grid{
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -1058,7 +1050,6 @@ input:focus{
     background: rgba(122, 44, 255, 0.2);
 }
 
-/* Movies grid under category */
 .results-grid{
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -1095,7 +1086,6 @@ input:focus{
     justify-content: center;
 }
 
-/* Home rows: keep cards anchored from the left for stable horizontal layout */
 #homeTop10,
 #homeRecommendations,
 #homePreviouslyViewed,
@@ -1114,7 +1104,6 @@ input:focus{
     scroll-padding-left: 30px;
 }
 
-/* Keep Previously Viewed aligned with other home rows */
 #homePreviouslyViewed {
     padding-left: 30px;
     scroll-padding-left: 30px;
@@ -1132,7 +1121,7 @@ input:focus{
     cursor: pointer;
 }
 
-/* Generic recommendations row (used in results + modal) */
+
 .ai-recommendations {
   display: flex;
   gap: 15px;

@@ -210,6 +210,7 @@ function enhanceHorizontalScrollers(selector) {
 
 async function loadMovies() {
     try {
+        // Category page uses the same movie source as other views.
         const res = await fetch("movies.json");
         const data = await res.json();
         movies = normalizeData(data);
@@ -220,6 +221,7 @@ async function loadMovies() {
 }
 
 function generateCategories() {
+    // Render fixed genre chips for quick filtering.
     const grid = document.getElementById("categoryGrid");
     grid.innerHTML = "";
 
@@ -233,6 +235,7 @@ function generateCategories() {
 }
 
 function showCategoryMovies(category) {
+    // Filter list by selected genre and render consistent cards.
     const resultsDiv = document.getElementById("categoryResults");
 
     document.querySelectorAll(".category-card").forEach(card => card.classList.remove("selected"));
@@ -282,6 +285,7 @@ async function showSuggestions() {
         return;
     }
 
+    // Keep suggestions aligned with selected search field.
     const matches = (window.AIClient && (field === "all" || field === "title"))
         ? await window.AIClient.getAISuggestions(movies, input, 10)
         : movies
@@ -334,6 +338,7 @@ async function showMovieDetails(idx) {
     document.getElementById("modalRuntime").textContent = `Runtime: ${formatRuntime(m.runtimeMinutes)}`;
     document.getElementById("modalVotes").textContent = `Votes: ${m.numVotes || "N/A"}`;
     document.getElementById("modalLink").href = `https://www.imdb.com/find/?q=${encodeURIComponent(m.title || "")}`;
+    // Capture view event for personalization profile.
     if (window.AIClient) window.AIClient.recordMovieView(m);
 
     const recDiv = document.getElementById("modalRecommendations");

@@ -17,6 +17,7 @@ SCALER_PATH = ROOT / "scaler_hybrid.pkl"
 
 
 def load_movies():
+    # Support both {"movies":[...]} and direct list payloads defensively.
     payload = json.loads(MOVIES_JSON.read_text(encoding="utf-8"))
     movies = payload.get("movies", [])
     if not isinstance(movies, list):
@@ -27,7 +28,7 @@ def load_movies():
 def build_feature_frame(movies):
     df = pd.DataFrame(movies)
 
-    # Normalize expected columns for hybrid model features.
+    # Normalize expected columns for the hybrid recommender/search features.
     df["title"] = df.get("title", "").fillna("")
     df["genres"] = df.get("genres", "").fillna("")
     df["directors"] = df.get("directors", "").fillna("")
@@ -49,6 +50,7 @@ def build_feature_frame(movies):
 
 
 def build_matrix(df, vectorizer, scaler):
+    # Rebuild training-time feature matrix shape: text vectors + scaled numeric.
     numeric_features = df[["runtimeMinutes", "numVotes", "averageRating", "startYear"]]
     numeric_scaled = scaler.transform(numeric_features)
     text_vectors = vectorizer.transform(df["text_features"])
@@ -61,6 +63,7 @@ def normalize_title_key(title):
 
 class AIState:
     def __init__(self):
+        # Load artifacts once at startup to keep requests fast.
         self.movies = load_movies()
         self.df = build_feature_frame(self.movies)
         self.model = pickle.loads(MODEL_PATH.read_bytes())
@@ -73,6 +76,7 @@ class AIState:
         }
 
     def recommend(self, title, k=10):
+        # KNN neighbor lookup over precomputed hybrid feature matrix.
         key = normalize_title_key(title)
         idx = self.title_to_idx.get(key)
         if idx is None:
@@ -98,6 +102,7 @@ class AIState:
         return recs
 
     def search(self, query, limit=10):
+        # Blend semantic similarity + lexical title matching + rating prior.
         q = (query or "").strip().lower()
         if not q:
             return []
@@ -155,6 +160,7 @@ class AppHandler(SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
+        # Lightweight JSON API layer used by frontend pages.
         parsed = urlparse(self.path)
         if parsed.path == "/api/recommendations":
             params = parse_qs(parsed.query)

@@ -201,6 +201,7 @@ function enhanceHorizontalScrollers(selector) {
 
 async function loadData() {
     try {
+        // Load once and render Top 10 from local JSON.
         const res = await fetch("movies.json");
         const data = await res.json();
         movies = normalizeData(data);
@@ -212,6 +213,7 @@ async function loadData() {
 }
 
 function showTopMovies() {
+    // Strict rating-based ranking for Top 10 page.
     const top10Div = document.getElementById("top10");
     top10Div.innerHTML = "";
 
@@ -257,6 +259,7 @@ async function showMovieDetails(idx) {
     document.getElementById("modalRuntime").textContent = `Runtime: ${formatRuntime(m.runtimeMinutes)}`;
     document.getElementById("modalVotes").textContent = `Votes: ${m.numVotes || "N/A"}`;
     document.getElementById("modalLink").href = `https://www.imdb.com/find/?q=${encodeURIComponent(m.title || "")}`;
+    // Track interactions for personalized ranking on other pages.
     if (window.AIClient) window.AIClient.recordMovieView(m);
 
     const recDiv = document.getElementById("modalRecommendations");
@@ -295,6 +298,7 @@ async function showSuggestions() {
         return;
     }
 
+    // AI suggestions for title/all; local field-matching for specific filters.
     const matches = (window.AIClient && (field === "all" || field === "title"))
         ? await window.AIClient.getAISuggestions(movies, input, 10)
         : movies

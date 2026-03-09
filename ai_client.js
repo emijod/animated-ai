@@ -1,6 +1,7 @@
 (function () {
   const PROFILE_KEY = "imdb_ai_profile_v1";
 
+  // Load user interaction profile from localStorage.
   function loadProfile() {
     try {
       const raw = localStorage.getItem(PROFILE_KEY);
@@ -18,6 +19,7 @@
     }
   }
 
+  // Persist profile updates safely (ignore storage errors).
   function saveProfile(profile) {
     try {
       localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
@@ -26,11 +28,13 @@
     }
   }
 
+  // Increment helper for profile counters.
   function bumpMap(map, key, amount) {
     if (!key) return;
     map[key] = (map[key] || 0) + amount;
   }
 
+  // Track movie views and derive lightweight preference signals.
   function recordMovieView(movie) {
     if (!movie) return;
     const p = loadProfile();
@@ -44,6 +48,7 @@
     saveProfile(p);
   }
 
+  // Track search queries to improve personalization.
   function recordSearch(query) {
     const q = (query || "").trim().toLowerCase();
     if (!q) return;
@@ -52,6 +57,7 @@
     saveProfile(p);
   }
 
+  // Compute a personalization boost from user history.
   function personalizedBoost(movie, p) {
     if (!movie) return 0;
     let boost = 0;
@@ -66,18 +72,21 @@
     return boost;
   }
 
+  // Fast title lookup for merging API results with local movie objects.
   function mapMoviesByTitle(movies) {
     const byTitle = new Map();
     movies.forEach(m => byTitle.set((m.title || "").toLowerCase(), m));
     return byTitle;
   }
 
+  // Query backend semantic/AI search API.
   async function aiSearch(query, limit) {
     const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=${limit}`);
     if (!res.ok) throw new Error("AI search unavailable");
     return res.json();
   }
 
+  // Local lexical fallback search when AI API is unavailable.
   function localSearch(movies, query, limit) {
     const q = (query || "").toLowerCase().trim();
     if (!q) return [];
@@ -96,6 +105,7 @@
       .map(x => x.movie);
   }
 
+  // Main search pipeline: AI ranking + personalization, then fallback.
   async function getAISearchResults(movies, query, limit = 20) {
     const q = (query || "").trim();
     if (!q) return [];
@@ -130,6 +140,7 @@
     return [...local].sort((a, b) => (personalizedBoost(b, p) - personalizedBoost(a, p)));
   }
 
+  // Suggestions share the same ranking pipeline for consistency.
   async function getAISuggestions(movies, query, limit = 10) {
     return getAISearchResults(movies, query, limit);
   }

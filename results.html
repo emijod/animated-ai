@@ -168,6 +168,7 @@ function enhanceHorizontalScrollers(selector) {
 
 async function loadData() {
   try {
+    // Results page is URL-driven (query + selected field).
     const res = await fetch("movies.json");
     const data = await res.json();
     movies = normalizeData(data);
@@ -182,6 +183,7 @@ async function loadData() {
 }
 
 function updateQueryInUrl(query) {
+  // Keep the current query/filter state shareable and reload-safe.
   const url = new URL(window.location.href);
   const field = getSelectedFilter();
   if (query) {
@@ -229,6 +231,7 @@ function formatRuntime(minutes) {
 }
 
 function getMovieFieldText(movie, field) {
+  // Centralize searchable text per selected filter field.
   switch (field) {
     case "title": return (movie.title || "").toLowerCase();
     case "year": return String(movie.year || "");
@@ -261,6 +264,7 @@ function matchesByField(movie, query, field) {
 let searchRequestToken = 0;
 
 async function showResults(query) {
+  // Token prevents stale async responses from overwriting newer searches.
   const token = ++searchRequestToken;
   const resultsDiv = document.getElementById("results");
   const aiSection = document.getElementById("aiRecommendationsSection");
@@ -282,6 +286,7 @@ async function showResults(query) {
   const looseMatches = movies.filter(m => getMovieFieldText(m, field).includes(query));
   let matches = strictMatches.length ? strictMatches : looseMatches;
   let usedAIRanking = false;
+  // AI ranking only applies to all/title queries; field filters stay deterministic.
   if (window.AIClient && (field === "all" || field === "title")) {
     const aiRanked = await window.AIClient.getAISearchResults(movies, query, 120);
     if (token !== searchRequestToken) return;
@@ -324,6 +329,7 @@ async function showResults(query) {
 }
 
 function renderRecommendations(list, sectionEl, containerEl) {
+  // Reuse standard movie cards for recommendation section consistency.
   if (!list.length) {
     sectionEl.style.display = "none";
     containerEl.innerHTML = "";
@@ -338,6 +344,7 @@ function renderRecommendations(list, sectionEl, containerEl) {
 }
 
 function getFallbackRecommendations(excludeList = []) {
+  // Fallback recs: rating baseline + optional personalization boost.
   const exclude = new Set(excludeList.map(m => m.title));
   const list = [...movies]
     .filter(m => !exclude.has(m.title))
@@ -395,6 +402,7 @@ async function showMovieDetails(idx) {
   document.getElementById("modalDirectors").textContent = `Director: ${m.directors || "N/A"}`;
   document.getElementById("modalWriters").textContent = `Writer: ${m.writers || "N/A"}`;
   document.getElementById("modalLink").href = `https://www.imdb.com/find/?q=${encodeURIComponent(m.title || "")}`;
+  // Record details opens as user-interest signals.
   if (window.AIClient) window.AIClient.recordMovieView(m);
 
   const recDiv = document.getElementById("modalRecommendations");
@@ -433,6 +441,7 @@ async function showSuggestions() {
     return;
   }
 
+  // Suggestions follow the same filter policy as results.
   const matches = (window.AIClient && (field === "all" || field === "title"))
     ? await window.AIClient.getAISuggestions(movies, input, 10)
     : movies
